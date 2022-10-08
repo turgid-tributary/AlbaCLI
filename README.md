@@ -7,4 +7,9 @@ department.
 
 ## Installation
 
-*TODO*
+```
+git clone https://github.com/turgid-tributary/AlbaCLI.git
+cd AlbaCLI
+pip install .
+```
+
