@@ -1,5 +1,6 @@
 import logging
 import re
+from argparse import Namespace
 from pathlib import Path
 from typing import List, NamedTuple, Optional
 
@@ -115,3 +116,16 @@ def _transform_file(file_path_input: Path, file_path_output: Path) -> bool:
             f"and writing it to {file_path_output}"
         )
         return False
+
+
+def transform_file(args: Namespace) -> bool:
+    """
+    Entry point to transform a transcript into its beautiful output.
+
+    :param args: CLI args for Fantastic Beasts transcription transformation
+    :returns: True if the tranformation is successful, false otherwise
+    """
+    res = _transform_file(Path(args.input_transcript), Path(args.output_transcript))
+    if res is False:
+        log.error("Could not tranform Fantastic Beasts transcription")
+    return res

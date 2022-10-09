@@ -18,6 +18,5 @@ def main() -> int:
         datefmt="%Y-%m-%dT%H:%M:%SZ",
     )
     logging.Formatter.converter = time.gmtime
-    log.info("Running alba-cli")
-    parse_args()
-    return 0
+    args = parse_args()
+    return args.func(args)
