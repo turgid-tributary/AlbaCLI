@@ -1,5 +1,8 @@
+import logging
 import re
-from typing import Optional
+from typing import List, NamedTuple, Optional
+
+log = logging.getLogger(__name__)
 
 
 def _contains_alphabetical_characters(content: str) -> bool:
@@ -44,3 +47,47 @@ def _remove_speakers(content: str) -> str:
     :returns: the string cleaned of all speakers
     """
     return re.sub(r"\[[^\]]*\]:", "", content)
+
+
+class SpeakerMonologue(NamedTuple):
+    """
+    Represents a single monologue of speaker in the podcast.
+    """
+
+    speaker: str
+    thoughts: List[str]
+
+    def to_string(self):
+        thought_string = " ".join(self.thoughts)
+        return f"{self.speaker}: {thought_string}".replace("\n", "").replace("\r", "")
+
+
+def _transform_content(content_lines: List[str]) -> str:
+    """
+    Transform a single file from its raw representation into beautified output.
+
+    :param content_lines: a list of strings representing the content of a file to be transformed
+    :returns: the entire file content, beautified
+    """
+    current_speaker = ""
+    consistent_thoughts = []  # type: List[SpeakerMonologue]
+    for line in content_lines:
+        # Skip lines which don't have any actual content
+        if not _contains_alphabetical_characters(line):
+            continue
+        speaker = _identify_speaker(line)
+        if speaker is None and len(consistent_thoughts) == 0:
+            log.warning(
+                "Encountered line of what looks like transcription "
+                f"before any speaker has been identified. Skipping: {line}"
+            )
+            continue
+
+        clean_line = _strip_backslash(_remove_speakers(line))
+        if speaker is None or speaker == current_speaker:
+            consistent_thoughts[-1].thoughts.append(clean_line)
+        else:
+            current_speaker = speaker
+            consistent_thoughts.append(SpeakerMonologue(speaker=speaker, thoughts=[clean_line]))
+
+    return "\n".join([thought.to_string() for thought in consistent_thoughts])
