@@ -1,3 +1,6 @@
+from pathlib import Path
+from unittest.mock import call, patch
+
 import alba_cli.fantastic_beasts as tp
 
 
@@ -153,3 +156,20 @@ def test__transform_content():
         res
         == "[ian_macinnes]:  the dogs of india are conceived by tigers were the indians will take diverse females  and fasten them to trees and woods where tigers abide whereunto the greedy ravening tiger  comes and instantly devours some one or two of them if his lusts do not  restrain him and then being so filled with meat which thing tigers seldom meet with  all presently he burns in lust and so limes the living dogs who are apt  to conceive by him which being performed he retires to some secret place and in  the meantime the indians take away the dogs of whom come these valor dogs which  retain the stomach and courage of their father but the shape and proportion of their  mother yet they do not keep any of the first or second litter for fear  of their tiger and stomachs but make them away and reserve the third letter\n[alexa]:  i'm lexasand\n[ian_macinnes]:  i'm an mckhinnis\n[alexa]:  this is\n[ian_macinnes]:  oh\n[alexa]:  real fantastic beasts of the middle ages and renaissance\n[ian_macinnes]:  because we believe that learning about animals in history and literature and art helps us  understand our place among our fellow fellow creatures today\n[alexa]:  that is quite a lurid story i mean no appetites of all sorts where does  that come from can you tell me a little bit more about this biologically unlikely"
     )
+
+
+def test__transform_file():
+    with patch.object(tp, "open"), patch.object(tp, "_transform_content") as m__tranform_content:
+        foo = Path("foo")
+        bar = Path("bar")
+        assert tp._transform_file(foo, bar)
+        m__tranform_content.assert_called_once()
+
+
+def test__transform_file_with_exception_returns_false():
+    with patch.object(tp, "open") as m_open:
+        m_open.side_effect = RuntimeError("foo")
+
+        foo = Path("foo")
+        bar = Path("bar")
+        assert not tp._transform_file(foo, bar)

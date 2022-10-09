@@ -1,5 +1,6 @@
 import logging
 import re
+from pathlib import Path
 from typing import List, NamedTuple, Optional
 
 log = logging.getLogger(__name__)
@@ -91,3 +92,26 @@ def _transform_content(content_lines: List[str]) -> str:
             consistent_thoughts.append(SpeakerMonologue(speaker=speaker, thoughts=[clean_line]))
 
     return "\n".join([thought.to_string() for thought in consistent_thoughts])
+
+
+def _transform_file(file_path_input: Path, file_path_output: Path) -> bool:
+    """
+    Transform a single file represnting a podcast transcript.
+
+    :param file_path_input: the input file path
+    :param file_path_output: the output file path
+    :returns: True if the file could be transformed, false otherwise
+    """
+    try:
+        with open(file_path_input, "r") as input_fp:
+            lines = input_fp.readlines()
+            transformed = _transform_content(lines)
+        with open(file_path_output, "w+") as output_fp:
+            output_fp.write(transformed)
+        return True
+    except Exception:
+        log.exception(
+            f"Unexpected error transorming {file_path_input}"
+            f"and writing it to {file_path_output}"
+        )
+        return False
