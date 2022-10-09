@@ -104,9 +104,11 @@ def _transform_file(file_path_input: Path, file_path_output: Path) -> bool:
     :returns: True if the file could be transformed, false otherwise
     """
     try:
+        log.info(f"Tranforming the content of transcript: {file_path_input}")
         with open(file_path_input, "r") as input_fp:
             lines = input_fp.readlines()
             transformed = _transform_content(lines)
+        log.info(f"Writing the beautfied output to: {file_path_output}")
         with open(file_path_output, "w+") as output_fp:
             output_fp.write(transformed)
         return True
